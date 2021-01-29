@@ -1,0 +1,6 @@
+FROM  php:8-fpm
+
+RUN pecl install redis-5.3.2 \
+    && docker-php-ext-enable redis \
+    && docker-php-ext-install mysqli pdo pdo_mysql
+

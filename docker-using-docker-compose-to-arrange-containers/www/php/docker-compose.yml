@@ -1,0 +1,56 @@
+version: "3.5"
+services:
+  djc8nginx:
+    image: nginx:1.18.0
+    networks:
+      djc8net:
+        aliases:
+          - djc8nginx
+    ports: 
+      - 443:443
+      - 80:80
+    links:
+      - djc8php
+    volumes:
+      - /www/nginx/logs:/var/log/nginx
+      - /www/nginx/conf/nginx.conf:/etc/nginx/nginx.conf
+      - /www/nginx/conf/vhost:/etc/nginx/vhost
+      - /www/nginx/conf/cert/:/etc/nginx/cert
+      - /www/web/public_html:/www
+  djc8mysql:
+    image: mysql:8.0.22
+    networks:
+       djc8net:
+        aliases:
+          - djc8mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: djc8learndocker
+    volumes:
+      - /www/mysql/date:/var/lib/mysql
+  djc8php:
+    build: .
+    networks:
+      djc8net:
+        aliases:
+          - djc8php
+    depends_on:
+      - djc8mysql
+      - djc8redis
+    ports:
+      - 9000:9000
+    expose:
+      - "9000"
+    links:
+      - djc8mysql
+    volumes:
+      - /www/web/public_html:/var/www/html
+
+  djc8redis:
+    image: redis:6.0.9
+    networks:
+      djc8net:
+        aliases:
+          - djc8redis
+networks:
+  djc8net:
+    driver: bridge
